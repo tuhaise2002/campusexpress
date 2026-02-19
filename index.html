@@ -289,7 +289,8 @@ function sendOrderToWhatsApp() {
   message += "Delivery to: [Your hostel/room]\nPayment: [Cash/Mobile Money]\nThank you!";
 
   // Replace with your actual business WhatsApp number (international format)
-  const phoneNumber = "25675xxxxxxx"; // ← CHANGE THIS TO REAL NUMBER e.g. 256758123456
+  const phoneNumber = "256760931135"; 
+
   const waUrl = `https://wa.me/\( {phoneNumber}?text= \){encodeURIComponent(message)}`;
 
   window.open(waUrl, '_blank');
