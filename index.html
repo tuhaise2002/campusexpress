@@ -1,456 +1,346 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Campus Express</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Campus Express - Meals & More</title>
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-<link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
 
-<style>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Poppins', sans-serif;
-}
+    body {
+      background: #f8f9fa;
+      color: #333;
+    }
 
-body {
-    background: #f5f5f5;
-}
+    /* HEADER */
+    .header {
+      background: #27ae60; /* WhatsApp-like green */
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
 
-/* HEADER */
-.header {
-    background: #2ECC71;
-    padding: 15px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    color: white;
-}
+    .logo {
+      font-size: 22px;
+      font-weight: 700;
+      color: white;
+      white-space: nowrap;
+    }
 
-.logo {
-    font-size: 20px;
-    font-weight: 600;
-}
+    .search-bar {
+      flex: 1;
+      position: relative;
+    }
 
-.search-bar {
-    flex: 1;
-    margin: 0 10px;
-}
+    .search-bar input {
+      width: 100%;
+      padding: 10px 16px 10px 40px;
+      border-radius: 30px;
+      border: none;
+      font-size: 15px;
+      background: white;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.08);
+    }
 
-.search-bar input {
-    width: 100%;
-    padding: 8px;
-    border-radius: 20px;
-    border: none;
-}
+    .search-bar::before {
+      content: '\f002';
+      font-family: "Font Awesome 5 Free"; /* fallback - or replace with boxicon */
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #777;
+      font-weight: 900;
+    }
 
-.cart {
-    font-size: 20px;
-    position: relative;
-    cursor: pointer;
-}
+    .cart {
+      font-size: 24px;
+      color: white;
+      position: relative;
+      cursor: pointer;
+    }
 
-.cart-count {
-    position: absolute;
-    top: -8px;
-    right: -10px;
-    background: red;
-    color: white;
-    font-size: 12px;
-    padding: 2px 6px;
-    border-radius: 50%;
-}
+    /* BANNER (optional - keep or remove) */
+    .banner {
+      background: linear-gradient(135deg, #e67e22, #f39c12);
+      color: white;
+      padding: 14px 16px;
+      margin: 8px 12px;
+      border-radius: 12px;
+      text-align: center;
+      font-size: 14px;
+      font-weight: 500;
+    }
 
-/* BANNER */
-.banner {
-    background: linear-gradient(135deg, #FF6B00, #ff9248);
-    color: white;
-    padding: 20px;
-    margin: 15px;
-    border-radius: 10px;
-    text-align: center;
-}
+    /* SECTION TITLE */
+    .section-title {
+      padding: 16px 16px 8px;
+      font-size: 18px;
+      font-weight: 600;
+      color: #222;
+    }
 
-/* PRICE FILTERS */
-.filters {
-    display: flex;
-    overflow-x: auto;
-    gap: 10px;
-    padding: 10px;
-}
+    /* ITEM GRID - classifieds style */
+    .items-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 14px;
+      padding: 0 12px 80px; /* space for bottom nav */
+    }
 
-.filters button {
-    background: white;
-    border: none;
-    padding: 8px 15px;
-    border-radius: 20px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    cursor: pointer;
-    white-space: nowrap;
-}
+    .item-card {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
 
-/* CATEGORIES */
-.section-title {
-    padding: 10px 15px;
-    font-weight: 600;
-}
+    .item-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+    }
 
-.categories {
-    display: flex;
-    gap: 15px;
-    padding: 10px 15px;
-    overflow-x: auto;
-}
+    .item-card img {
+      width: 100%;
+      height: 220px;           /* Dominant photo - Jiji style */
+      object-fit: cover;
+      background: #eee;
+    }
 
-.category {
-    background: white;
-    padding: 10px;
-    border-radius: 10px;
-    text-align: center;
-    min-width: 80px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
+    .item-info {
+      padding: 12px 14px;
+    }
 
-/* FOOD GRID */
-.food-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: 15px;
-    padding: 15px;
-}
+    .item-name {
+      font-size: 15px;
+      font-weight: 600;
+      line-height: 1.3;
+      margin-bottom: 6px;
+      color: #111;
+    }
 
-.food-card {
-    background: white;
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
+    .item-price {
+      font-size: 18px;
+      font-weight: 700;
+      color: #c0392b;          /* Eye-catching price red */
+      margin-bottom: 8px;
+    }
 
-.food-card img {
-    width: 100%;
-    height: 120px;
-    object-fit: cover;
-}
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 10px;
+      font-size: 12px;
+    }
 
-.food-info {
-    padding: 10px;
-}
+    .tag {
+      background: #ecf0f1;
+      color: #555;
+      padding: 4px 10px;
+      border-radius: 20px;
+    }
 
-.food-name {
-    font-weight: 600;
-    font-size: 14px;
-}
+    .location {
+      font-size: 12.5px;
+      color: #777;
+      margin-bottom: 12px;
+    }
 
-.food-price {
-    color: #2ECC71;
-    font-weight: 600;
-    margin: 5px 0;
-}
+    .contact-btn {
+      background: #27ae60;
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 30px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      text-align: center;
+      transition: background 0.2s;
+    }
 
-.add-btn {
-    background: #FF6B00;
-    border: none;
-    padding: 6px 10px;
-    border-radius: 20px;
-    color: white;
-    font-size: 12px;
-    cursor: pointer;
-}
+    .contact-btn:hover {
+      background: #219653;
+    }
 
-/* CART PANEL */
-.cart-panel {
-    position: fixed;
-    right: -350px;
-    top: 0;
-    width: 320px;
-    height: 100%;
-    background: white;
-    box-shadow: -2px 0 10px rgba(0,0,0,0.2);
-    transition: 0.3s;
-    padding: 15px;
-    overflow-y: auto;
-    z-index: 1000;
-}
-
-.cart-panel.active {
-    right: 0;
-}
-
-.cart-item {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 10px;
-    font-size: 14px;
-}
-
-.cart-total {
-    font-weight: 600;
-    margin-top: 10px;
-}
-
-.remove-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: red;
-}
-
-
-/* BOTTOM NAV */
-.bottom-nav {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 70px;
-    background: white;
-    display: flex;
-    align-items: center;
-    justify-content: space-around;
-    box-shadow: 0 -2px 8px rgba(0,0,0,0.08);
-    z-index: 999;
-}
-
-.nav-item {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    color: #555;
-    font-size: 11px;
-    text-decoration: none;
-    padding: 4px 0;
-}
-
-.nav-item i {
-    font-size: 26px;
-    margin-bottom: 4px;
-}
-
-.nav-item span {
-    font-size: 10px;
-    line-height: 1.1;
-}
-
-/* Sell button – raised orange circle */
-.sell {
-    position: relative;
-    width: 72px;
-}
-
-.sell-btn {
-    width: 58px;
-    height: 58px;
-    background: #FF6B00;
-    color: white;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 14px rgba(255, 107, 0, 0.35);
-    text-decoration: none;
-    margin: -29px auto 0;
-    transition: all 0.2s ease;
-}
-
-.sell-btn i {
-    font-size: 36px;
-}
-
-.sell-btn:hover,
-.sell-btn:active {
-    transform: scale(1.07);
-    box-shadow: 0 6px 18px rgba(255, 107, 0, 0.45);
-}
-
-/* Active / tap feedback – color change only */
-.nav-item:active,
-.nav-item:focus {
-    color: #FF6B00;
-}
-
-/* Keep hiding on larger screens */
-@media (min-width: 768px) {
+    /* BOTTOM NAV - kept as is */
     .bottom-nav {
-        display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 70px;
+      background: white;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      box-shadow: 0 -3px 12px rgba(0,0,0,0.1);
+      z-index: 999;
     }
-}
-    }
-}
-</style>
-</head>
 
+    .nav-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #555;
+      font-size: 10px;
+      text-decoration: none;
+    }
+
+    .nav-item i {
+      font-size: 28px;
+      margin-bottom: 3px;
+    }
+
+    .sell {
+      position: relative;
+      width: 76px;
+    }
+
+    .sell-btn {
+      width: 60px;
+      height: 60px;
+      background: #e67e22;
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 5px 16px rgba(230,126,34,0.4);
+      margin: -30px auto 0;
+      font-size: 32px;
+    }
+
+    .sell-btn:hover {
+      transform: scale(1.08);
+    }
+
+    @media (min-width: 768px) {
+      .bottom-nav { display: none; }
+    }
+  </style>
+</head>
 <body>
 
-<!-- HEADER -->
-<div class="header">
+  <!-- HEADER -->
+  <div class="header">
     <div class="logo">Campus Express</div>
     <div class="search-bar">
-        <input type="text" placeholder="Search food, drinks...">
+      <input type="text" placeholder="Search meals, drinks, snacks...">
     </div>
-    <div class="cart" onclick="toggleCart()">
-        🛒
-        <span class="cart-count" id="cart-count">0</span>
-    </div>
-</div>
+    <div class="cart">🛒</div>
+  </div>
 
-<!-- BANNER -->
-<div class="banner">
-    🍔 Free delivery for orders above UGX 20,000 <br>
-    Hot meals delivered to your hostel!
-</div>
+  <!-- BANNER -->
+  <div class="banner">
+    🍔 Free delivery on orders above UGX 20,000 • Fast to your hostel!
+  </div>
 
-<!-- PRICE FILTERS -->
-<div class="filters">
-    <button>< UGX 10K</button>
-    <button>UGX 10K - 20K</button>
-    <button>UGX 20K - 40K</button>
-    <button>> UGX 40K</button>
-</div>
+  <!-- POPULAR / LISTINGS -->
+  <div class="section-title">Popular Meals</div>
+  <div class="items-container">
 
-<!-- CATEGORIES -->
-<div class="section-title">Categories</div>
-<div class="categories">
-    <div class="category">🍔 Fast Food</div>
-    <div class="category">🥤 Drinks</div>
-    <div class="category">🍕 Pizza</div>
-    <div class="category">🍚 Local</div>
-    <div class="category">🧃 Juice</div>
-</div>
-
-<!-- FOOD ITEMS -->
-<div class="section-title">Popular Meals</div>
-<div class="food-container">
-
-    <div class="food-card">
-        <img src="https://source.unsplash.com/400x300/?burger">
-        <div class="food-info">
-            <div class="food-name">Beef Burger</div>
-            <div class="food-price">UGX 15000</div>
-            <button class="add-btn" onclick="addToCart('Beef Burger',15000)">Add to Cart</button>
+    <div class="item-card">
+      <img src="https://source.unsplash.com/500x700/?beef-burger" alt="Beef Burger">
+      <div class="item-info">
+        <div class="item-name">Beef Burger + Chips + Soda</div>
+        <div class="item-price">UGX 18,000</div>
+        <div class="tags">
+          <span class="tag">Fast Food</span>
+          <span class="tag">Popular</span>
         </div>
+        <div class="location">Kampala Central • Makerere Area</div>
+        <button class="contact-btn">Order Now</button>
+      </div>
     </div>
 
-    <div class="food-card">
-        <img src="https://source.unsplash.com/400x300/?pizza">
-        <div class="food-info">
-            <div class="food-name">Pepperoni Pizza</div>
-            <div class="food-price">UGX 25000</div>
-            <button class="add-btn" onclick="addToCart('Pepperoni Pizza',25000)">Add to Cart</button>
+    <div class="item-card">
+      <img src="https://source.unsplash.com/500x700/?pizza" alt="Pepperoni Pizza">
+      <div class="item-info">
+        <div class="item-name">Pepperoni Pizza (Large)</div>
+        <div class="item-price">UGX 28,000</div>
+        <div class="tags">
+          <span class="tag">Pizza</span>
+          <span class="tag">Fresh</span>
         </div>
+        <div class="location">Kampala • Wandegeya</div>
+        <button class="contact-btn">Order Now</button>
+      </div>
     </div>
 
-    <div class="food-card">
-        <img src="https://source.unsplash.com/400x300/?fried-rice">
-        <div class="food-info">
-            <div class="food-name">Fried Rice</div>
-            <div class="food-price">UGX 18000</div>
-            <button class="add-btn" onclick="addToCart('Fried Rice',18000)">Add to Cart</button>
+    <div class="item-card">
+      <img src="https://source.unsplash.com/500x700/?fried-rice" alt="Fried Rice">
+      <div class="item-info">
+        <div class="item-name">Chicken Fried Rice + Coleslaw</div>
+        <div class="item-price">UGX 16,500</div>
+        <div class="tags">
+          <span class="tag">Local</span>
+          <span class="tag">Spicy</span>
         </div>
+        <div class="location">Kampala • Kikoni</div>
+        <button class="contact-btn">Order Now</button>
+      </div>
     </div>
 
-    <div class="food-card">
-        <img src="https://source.unsplash.com/400x300/?smoothie">
-        <div class="food-info">
-            <div class="food-name">Fruit Smoothie</div>
-            <div class="food-price">UGX 8000</div>
-            <button class="add-btn" onclick="addToCart('Fruit Smoothie',8000)">Add to Cart</button>
+    <div class="item-card">
+      <img src="https://source.unsplash.com/500x700/?smoothie" alt="Fruit Smoothie">
+      <div class="item-info">
+        <div class="item-name">Mixed Fruit Smoothie (Large)</div>
+        <div class="item-price">UGX 9,000</div>
+        <div class="tags">
+          <span class="tag">Drinks</span>
+          <span class="tag">Healthy</span>
         </div>
+        <div class="location">Kampala • Across Campus</div>
+        <button class="contact-btn">Order Now</button>
+      </div>
     </div>
 
-</div>
+    <!-- Add more cards as needed -->
 
-<!-- CART PANEL -->
-<div class="cart-panel" id="cart-panel">
-    <h3>Your Cart</h3>
-    <div id="cart-items"></div>
-    <div class="cart-total" id="cart-total">Total: UGX 0</div>
-</div>
+  </div>
 
-<!-- BOTTOM NAV -->
-<nav class="bottom-nav">
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav">
     <a href="#" class="nav-item">
-        <i class='bx bx-home'></i>
-        <span>Home</span>
+      <i class='bx bx-home'></i>
+      <span>Home</span>
     </a>
-
     <a href="#" class="nav-item">
-        <i class='bx bx-heart'></i>
-        <span>Saved</span>
+      <i class='bx bx-heart'></i>
+      <span>Saved</span>
     </a>
-
     <div class="nav-item sell">
-        <a href="#" class="sell-btn" aria-label="Post or Sell Item">
-            <i class='bx bx-plus'></i>
-        </a>
+      <a href="#" class="sell-btn">
+        <i class='bx bx-plus'></i>
+      </a>
     </div>
-
     <a href="#" class="nav-item">
-        <i class='bx bx-package'></i>
-        <span>Orders</span>
+      <i class='bx bx-package'></i>
+      <span>Orders</span>
     </a>
-
     <a href="#" class="nav-item">
-        <i class='bx bx-user'></i>
-        <span>Profile</span>
+      <i class='bx bx-user'></i>
+      <span>Profile</span>
     </a>
-</nav>
-
-
-<script>
-let cart = [];
-
-function addToCart(name, price) {
-    const existing = cart.find(item => item.name === name);
-    if (existing) {
-        existing.quantity++;
-    } else {
-        cart.push({ name, price, quantity: 1 });
-    }
-    updateCart();
-}
-
-function updateCart() {
-    const cartItems = document.getElementById("cart-items");
-    const cartCount = document.getElementById("cart-count");
-    const cartTotal = document.getElementById("cart-total");
-
-    cartItems.innerHTML = "";
-    let total = 0;
-    let count = 0;
-
-    cart.forEach((item, index) => {
-        total += item.price * item.quantity;
-        count += item.quantity;
-
-        cartItems.innerHTML += `
-            <div class="cart-item">
-                <div>${item.name} x${item.quantity}</div>
-                <div>
-                    UGX ${item.price * item.quantity}
-                    <button class="remove-btn" onclick="removeItem(${index})">❌</button>
-                </div>
-            </div>
-        `;
-    });
-
-    cartCount.innerText = count;
-    cartTotal.innerText = "Total: UGX " + total;
-}
-
-function removeItem(index) {
-    cart.splice(index, 1);
-    updateCart();
-}
-
-function toggleCart() {
-    document.getElementById("cart-panel").classList.toggle("active");
-}
-</script>
+  </nav>
 
 </body>
 </html>
