@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Campus Express</title>
 
+<link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 
 <style>
@@ -197,26 +198,87 @@ body {
     color: red;
 }
 
+
 /* BOTTOM NAV */
 .bottom-nav {
     position: fixed;
     bottom: 0;
-    width: 100%;
+    left: 0;
+    right: 0;
+    height: 70px;
     background: white;
     display: flex;
+    align-items: center;
     justify-content: space-around;
-    padding: 10px 0;
-    box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+    box-shadow: 0 -2px 8px rgba(0,0,0,0.08);
+    z-index: 999;
 }
 
-.bottom-nav div {
-    text-align: center;
-    font-size: 12px;
+.nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #555;
+    font-size: 11px;
+    text-decoration: none;
+    padding: 4px 0;
 }
 
+.nav-item i {
+    font-size: 26px;
+    margin-bottom: 4px;
+}
+
+.nav-item span {
+    font-size: 10px;
+    line-height: 1.1;
+}
+
+/* Sell button – raised orange circle */
+.sell {
+    position: relative;
+    width: 72px;
+}
+
+.sell-btn {
+    width: 58px;
+    height: 58px;
+    background: #FF6B00;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 14px rgba(255, 107, 0, 0.35);
+    text-decoration: none;
+    margin: -29px auto 0;
+    transition: all 0.2s ease;
+}
+
+.sell-btn i {
+    font-size: 36px;
+}
+
+.sell-btn:hover,
+.sell-btn:active {
+    transform: scale(1.07);
+    box-shadow: 0 6px 18px rgba(255, 107, 0, 0.45);
+}
+
+/* Active / tap feedback – color change only */
+.nav-item:active,
+.nav-item:focus {
+    color: #FF6B00;
+}
+
+/* Keep hiding on larger screens */
 @media (min-width: 768px) {
     .bottom-nav {
         display: none;
+    }
+}
     }
 }
 </style>
@@ -310,12 +372,34 @@ body {
 </div>
 
 <!-- BOTTOM NAV -->
-<div class="bottom-nav">
-    <div>🏠<br>Home</div>
-    <div>❤️<br>Saved</div>
-    <div>📦<br>Orders</div>
-    <div>👤<br>Profile</div>
-</div>
+<nav class="bottom-nav">
+    <a href="#" class="nav-item">
+        <i class='bx bx-home'></i>
+        <span>Home</span>
+    </a>
+
+    <a href="#" class="nav-item">
+        <i class='bx bx-heart'></i>
+        <span>Saved</span>
+    </a>
+
+    <div class="nav-item sell">
+        <a href="#" class="sell-btn" aria-label="Post or Sell Item">
+            <i class='bx bx-plus'></i>
+        </a>
+    </div>
+
+    <a href="#" class="nav-item">
+        <i class='bx bx-package'></i>
+        <span>Orders</span>
+    </a>
+
+    <a href="#" class="nav-item">
+        <i class='bx bx-user'></i>
+        <span>Profile</span>
+    </a>
+</nav>
+
 
 <script>
 let cart = [];
