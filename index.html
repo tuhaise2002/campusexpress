@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Campus Express</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    background: #f5f5f5;
+}
+
+/* HEADER */
+.header {
+    background: #2ECC71;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: white;
+}
+
+.logo {
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.search-bar {
+    flex: 1;
+    margin: 0 10px;
+}
+
+.search-bar input {
+    width: 100%;
+    padding: 8px;
+    border-radius: 20px;
+    border: none;
+}
+
+.cart {
+    font-size: 20px;
+    position: relative;
+    cursor: pointer;
+}
+
+.cart-count {
+    position: absolute;
+    top: -8px;
+    right: -10px;
+    background: red;
+    color: white;
+    font-size: 12px;
+    padding: 2px 6px;
+    border-radius: 50%;
+}
+
+/* BANNER */
+.banner {
+    background: linear-gradient(135deg, #FF6B00, #ff9248);
+    color: white;
+    padding: 20px;
+    margin: 15px;
+    border-radius: 10px;
+    text-align: center;
+}
+
+/* PRICE FILTERS */
+.filters {
+    display: flex;
+    overflow-x: auto;
+    gap: 10px;
+    padding: 10px;
+}
+
+.filters button {
+    background: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 20px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+/* CATEGORIES */
+.section-title {
+    padding: 10px 15px;
+    font-weight: 600;
+}
+
+.categories {
+    display: flex;
+    gap: 15px;
+    padding: 10px 15px;
+    overflow-x: auto;
+}
+
+.category {
+    background: white;
+    padding: 10px;
+    border-radius: 10px;
+    text-align: center;
+    min-width: 80px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* FOOD GRID */
+.food-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 15px;
+    padding: 15px;
+}
+
+.food-card {
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.food-card img {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+}
+
+.food-info {
+    padding: 10px;
+}
+
+.food-name {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.food-price {
+    color: #2ECC71;
+    font-weight: 600;
+    margin: 5px 0;
+}
+
+.add-btn {
+    background: #FF6B00;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 20px;
+    color: white;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+/* CART PANEL */
+.cart-panel {
+    position: fixed;
+    right: -350px;
+    top: 0;
+    width: 320px;
+    height: 100%;
+    background: white;
+    box-shadow: -2px 0 10px rgba(0,0,0,0.2);
+    transition: 0.3s;
+    padding: 15px;
+    overflow-y: auto;
+    z-index: 1000;
+}
+
+.cart-panel.active {
+    right: 0;
+}
+
+.cart-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-size: 14px;
+}
+
+.cart-total {
+    font-weight: 600;
+    margin-top: 10px;
+}
+
+.remove-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: red;
+}
+
+/* BOTTOM NAV */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background: white;
+    display: flex;
+    justify-content: space-around;
+    padding: 10px 0;
+    box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+}
+
+.bottom-nav div {
+    text-align: center;
+    font-size: 12px;
+}
+
+@media (min-width: 768px) {
+    .bottom-nav {
+        display: none;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- HEADER -->
+<div class="header">
+    <div class="logo">Campus Express</div>
+    <div class="search-bar">
+        <input type="text" placeholder="Search food, drinks...">
+    </div>
+    <div class="cart" onclick="toggleCart()">
+        🛒
+        <span class="cart-count" id="cart-count">0</span>
+    </div>
+</div>
+
+<!-- BANNER -->
+<div class="banner">
+    🍔 Free delivery for orders above UGX 20,000 <br>
+    Hot meals delivered to your hostel!
+</div>
+
+<!-- PRICE FILTERS -->
+<div class="filters">
+    <button>< UGX 10K</button>
+    <button>UGX 10K - 20K</button>
+    <button>UGX 20K - 40K</button>
+    <button>> UGX 40K</button>
+</div>
+
+<!-- CATEGORIES -->
+<div class="section-title">Categories</div>
+<div class="categories">
+    <div class="category">🍔 Fast Food</div>
+    <div class="category">🥤 Drinks</div>
+    <div class="category">🍕 Pizza</div>
+    <div class="category">🍚 Local</div>
+    <div class="category">🧃 Juice</div>
+</div>
+
+<!-- FOOD ITEMS -->
+<div class="section-title">Popular Meals</div>
+<div class="food-container">
+
+    <div class="food-card">
+        <img src="https://source.unsplash.com/400x300/?burger">
+        <div class="food-info">
+            <div class="food-name">Beef Burger</div>
+            <div class="food-price">UGX 15000</div>
+            <button class="add-btn" onclick="addToCart('Beef Burger',15000)">Add to Cart</button>
+        </div>
+    </div>
+
+    <div class="food-card">
+        <img src="https://source.unsplash.com/400x300/?pizza">
+        <div class="food-info">
+            <div class="food-name">Pepperoni Pizza</div>
+            <div class="food-price">UGX 25000</div>
+            <button class="add-btn" onclick="addToCart('Pepperoni Pizza',25000)">Add to Cart</button>
+        </div>
+    </div>
+
+    <div class="food-card">
+        <img src="https://source.unsplash.com/400x300/?fried-rice">
+        <div class="food-info">
+            <div class="food-name">Fried Rice</div>
+            <div class="food-price">UGX 18000</div>
+            <button class="add-btn" onclick="addToCart('Fried Rice',18000)">Add to Cart</button>
+        </div>
+    </div>
+
+    <div class="food-card">
+        <img src="https://source.unsplash.com/400x300/?smoothie">
+        <div class="food-info">
+            <div class="food-name">Fruit Smoothie</div>
+            <div class="food-price">UGX 8000</div>
+            <button class="add-btn" onclick="addToCart('Fruit Smoothie',8000)">Add to Cart</button>
+        </div>
+    </div>
+
+</div>
+
+<!-- CART PANEL -->
+<div class="cart-panel" id="cart-panel">
+    <h3>Your Cart</h3>
+    <div id="cart-items"></div>
+    <div class="cart-total" id="cart-total">Total: UGX 0</div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+    <div>🏠<br>Home</div>
+    <div>❤️<br>Saved</div>
+    <div>📦<br>Orders</div>
+    <div>👤<br>Profile</div>
+</div>
+
+<script>
+let cart = [];
+
+function addToCart(name, price) {
+    const existing = cart.find(item => item.name === name);
+    if (existing) {
+        existing.quantity++;
+    } else {
+        cart.push({ name, price, quantity: 1 });
+    }
+    updateCart();
+}
+
+function updateCart() {
+    const cartItems = document.getElementById("cart-items");
+    const cartCount = document.getElementById("cart-count");
+    const cartTotal = document.getElementById("cart-total");
+
+    cartItems.innerHTML = "";
+    let total = 0;
+    let count = 0;
+
+    cart.forEach((item, index) => {
+        total += item.price * item.quantity;
+        count += item.quantity;
+
+        cartItems.innerHTML += `
+            <div class="cart-item">
+                <div>${item.name} x${item.quantity}</div>
+                <div>
+                    UGX ${item.price * item.quantity}
+                    <button class="remove-btn" onclick="removeItem(${index})">❌</button>
+                </div>
+            </div>
+        `;
+    });
+
+    cartCount.innerText = count;
+    cartTotal.innerText = "Total: UGX " + total;
+}
+
+function removeItem(index) {
+    cart.splice(index, 1);
+    updateCart();
+}
+
+function toggleCart() {
+    document.getElementById("cart-panel").classList.toggle("active");
+}
+</script>
+
+</body>
+</html>
