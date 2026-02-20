@@ -236,115 +236,6 @@
       .bottom-nav { display: none; }
     }
   </style>
-
-<script>
-// Helper: format price with commas
-function formatPrice(price) {
-  return Number(price).toLocaleString('en-US');
-}
-
-// Load cart from localStorage or start empty
-let cart = JSON.parse(localStorage.getItem('campusCart')) || [];
-
-// Update cart count in header
-function updateCartCount() {
-  const countEl = document.getElementById('cart-count');
-  if (countEl) {
-    const totalItems = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
-    countEl.textContent = totalItems;
-  }
-}
-
-// Add item to cart
-function addToCart(name, price) {
-  const existing = cart.find(item => item.name === name);
-  if (existing) {
-    existing.quantity = (existing.quantity || 1) + 1;
-  } else {
-    cart.push({ name, price: Number(price), quantity: 1 });
-  }
-  localStorage.setItem('campusCart', JSON.stringify(cart));
-  updateCartCount();
-  // Optional: visual feedback
-  alert(`${name} added to cart!`);
-}
-
-// Send cart to WhatsApp
-function sendOrderToWhatsApp() {
-  if (cart.length === 0) {
-    alert("Your cart is empty!");
-    return;
-  }
-
-  let message = "Hello Campus Express! I'd like to place this order:\n\n";
-  let total = 0;
-
-  cart.forEach(item => {
-    const itemTotal = item.price * (item.quantity || 1);
-    message += `• ${item.name} × ${item.quantity || 1} = UGX ${formatPrice(itemTotal)}\n`;
-    total += itemTotal;
-  });
-
-  message += `\nTotal: UGX ${formatPrice(total)}\n`;
-  message += "Delivery to: [Your hostel/room]\nPayment: [Cash/Mobile Money]\nThank you!";
-
-  // Replace with your actual business WhatsApp number (international format)
-  const phoneNumber = "256760931135"; 
-
-  const waUrl = `https://wa.me/\( {phoneNumber}?text= \){encodeURIComponent(message)}`;
-
-  window.open(waUrl, '_blank');
-}
-
-// Attach events to all "Add to Cart" buttons
-document.querySelectorAll('.contact-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const name = btn.dataset.name;
-    const price = btn.dataset.price;
-    if (name && price) {
-      addToCart(name, price);
-    }
-  });
-});
-
-// Make cart icon clickable → for now shows summary + offers to send via WA
-document.querySelector('.cart').addEventListener('click', () => {
-  if (cart.length === 0) {
-    alert("Your cart is empty.");
-    return;
-  }
-
-  let summary = "Cart:\n";
-  let total = 0;
-  cart.forEach(item => {
-    const itemTotal = item.price * (item.quantity || 1);
-    summary += `• ${item.name} × ${item.quantity || 1} = UGX ${formatPrice(itemTotal)}\n`;
-    total += itemTotal;
-  });
-  summary += `\nTotal: UGX ${formatPrice(total)}`;
-
-  if (confirm(summary + "\n\nSend order via WhatsApp?")) {
-    sendOrderToWhatsApp();
-  }
-});
-
-// Sell button placeholder
-document.querySelector('.sell-btn')?.addEventListener('click', (e) => {
-  e.preventDefault();
-  alert("Vendor listing coming soon! You will be able to add your own meals/snacks here.");
-});
-
-// Bottom nav other links (placeholders)
-document.querySelectorAll('.nav-item a:not(.sell-btn)').forEach(link => {
-  link.addEventListener('click', (e) => {
-    e.preventDefault();
-    alert("This section is under development. Stay tuned!");
-  });
-});
-
-// Initial load
-updateCartCount();
-</script>
 </head>
 
 <body>
@@ -395,7 +286,11 @@ updateCartCount();
           <span class="tag">Fresh</span>
         </div>
         <div class="location">Kampala • Wandegeya</div>
-        <button class="contact-btn">Order Now</button>
+        <button class="contact-btn"
+          data-name="Pepperoni Pizza (Large)"
+          data-price="28000">
+          Order Now
+        </button>
       </div>
     </div>
 
@@ -409,7 +304,11 @@ updateCartCount();
           <span class="tag">Spicy</span>
         </div>
         <div class="location">Kampala • Kikoni</div>
-        <button class="contact-btn">Order Now</button>
+        <button class="contact-btn"
+          data-name="Chicken Fried Rice + Coleslaw"
+          data-price="16,500">
+          Order Now
+        </button>
       </div>
     </div>
 
@@ -423,7 +322,11 @@ updateCartCount();
           <span class="tag">Healthy</span>
         </div>
         <div class="location">Kampala • Across Campus</div>
-        <button class="contact-btn">Order Now</button>
+        <button class="contact-btn"
+            data-name="Mixed Fruit Smoothie (Large)"
+            data-price="9,000">
+            Order Now
+          </button>
       </div>
     </div>
 
@@ -455,6 +358,101 @@ updateCartCount();
       <span>Profile</span>
     </a>
   </nav>
+
+  <script>
+document.addEventListener("DOMContentLoaded", function () {
+
+  function formatPrice(price) {
+    return Number(price).toLocaleString("en-US");
+  }
+
+  let cart = JSON.parse(localStorage.getItem("campusCart")) || [];
+
+  function updateCartCount() {
+    const countEl = document.getElementById("cart-count");
+    if (countEl) {
+      const totalItems = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
+      countEl.textContent = totalItems;
+    }
+  }
+
+  function addToCart(name, price) {
+    const existing = cart.find(item => item.name === name);
+
+    if (existing) {
+      existing.quantity = (existing.quantity || 1) + 1;
+    } else {
+      cart.push({ name, price: Number(price), quantity: 1 });
+    }
+
+    localStorage.setItem("campusCart", JSON.stringify(cart));
+    updateCartCount();
+    alert(name + " added to cart!");
+  }
+
+  function sendOrderToWhatsApp() {
+    if (cart.length === 0) {
+      alert("Your cart is empty!");
+      return;
+    }
+
+    let message = "Hello Campus Express! I'd like to place this order:\n\n";
+    let total = 0;
+
+    cart.forEach(item => {
+      const itemTotal = item.price * (item.quantity || 1);
+      message += `• ${item.name} × ${item.quantity || 1} = UGX ${formatPrice(itemTotal)}\n`;
+      total += itemTotal;
+    });
+
+    message += `\nTotal: UGX ${formatPrice(total)}\n`;
+    message += "Delivery to: [Your hostel/room]\nPayment: [Cash/Mobile Money]\nThank you!";
+
+    const phoneNumber = "256760931135";
+    const waUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+
+    window.open(waUrl, "_blank");
+  }
+
+  // Attach events to buttons
+  document.querySelectorAll(".contact-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const name = btn.dataset.name;
+      const price = btn.dataset.price;
+
+      if (name && price) {
+        addToCart(name, price);
+      }
+    });
+  });
+
+  // Cart click
+  document.querySelector(".cart").addEventListener("click", () => {
+    if (cart.length === 0) {
+      alert("Your cart is empty.");
+      return;
+    }
+
+    let summary = "Cart:\n";
+    let total = 0;
+
+    cart.forEach(item => {
+      const itemTotal = item.price * (item.quantity || 1);
+      summary += `• ${item.name} × ${item.quantity || 1} = UGX ${formatPrice(itemTotal)}\n`;
+      total += itemTotal;
+    });
+
+    summary += `\nTotal: UGX ${formatPrice(total)}`;
+
+    if (confirm(summary + "\n\nSend order via WhatsApp?")) {
+      sendOrderToWhatsApp();
+    }
+  });
+
+  updateCartCount();
+
+});
+</script>
 
 </body>
 </html>
