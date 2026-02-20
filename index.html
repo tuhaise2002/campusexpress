@@ -73,17 +73,44 @@
       cursor: pointer;
     }
 
-    /* BANNER (optional - keep or remove) */
-    .banner {
-      background: linear-gradient(135deg, #e67e22, #f39c12);
-      color: white;
-      padding: 14px 16px;
-      margin: 8px 12px;
-      border-radius: 12px;
-      text-align: center;
-      font-size: 14px;
-      font-weight: 500;
-    }
+    /* ===========================
+   DYNAMIC ADVERT BANNER
+=========================== */
+
+.dynamic-banner {
+  background: linear-gradient(135deg, #27ae60, #2ecc71);
+  color: white;
+  padding: 20px;
+  margin: 12px;
+  border-radius: 16px;
+  text-align: center;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  box-shadow: 0 8px 25px rgba(39,174,96,0.35);
+  position: relative;
+  overflow: hidden;
+  animation: glow 3s infinite alternate;
+}
+
+@keyframes glow {
+  from { box-shadow: 0 0 15px rgba(46,204,113,0.4); }
+  to { box-shadow: 0 0 30px rgba(46,204,113,0.9); }
+}
+
+.cursor {
+  display: inline-block;
+  margin-left: 5px;
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0% { opacity: 1; }
+  50% { opacity: 0; }
+  100% { opacity: 1; }
+}
+   
+    
 
     /* SECTION TITLE */
     .section-title {
@@ -250,9 +277,9 @@
   </div>
 
   <!-- BANNER -->
-  <div class="banner">
-    🍔 Free delivery on orders above UGX 20,000 • Fast to your hostel!
-  </div>
+ <div class="dynamic-banner">
+  <span id="typing-text"></span><span class="cursor">|</span>
+ </div>
 
   <!-- POPULAR / LISTINGS -->
   <div class="section-title">Popular Meals</div>
@@ -420,6 +447,47 @@ document.addEventListener("DOMContentLoaded", function () {
         addToCart(name, price);
       }
     });
+    /* ===========================
+   TYPING ADVERT ANIMATION
+=========================== */
+
+const messages = [
+  "🚀 Welcome to Campus Express — The Home of Quick Delivery!",
+  "🍔 Order Fresh Meals Delivered Fast to Your Hostel.",
+  "⚡ Fast. Reliable. Campus Trusted.",
+  "💚 Supporting Local Campus Restaurants Daily."
+];
+
+let messageIndex = 0;
+let charIndex = 0;
+let isDeleting = false;
+
+const typingElement = document.getElementById("typing-text");
+
+function typeEffect() {
+  const currentMessage = messages[messageIndex];
+
+  if (isDeleting) {
+    typingElement.textContent = currentMessage.substring(0, charIndex--);
+  } else {
+    typingElement.textContent = currentMessage.substring(0, charIndex++);
+  }
+
+  let typingSpeed = isDeleting ? 40 : 70;
+
+  if (!isDeleting && charIndex === currentMessage.length) {
+    typingSpeed = 1500;
+    isDeleting = true;
+  } 
+  else if (isDeleting && charIndex === 0) {
+    isDeleting = false;
+    messageIndex = (messageIndex + 1) % messages.length;
+  }
+
+  setTimeout(typeEffect, typingSpeed);
+}
+
+typeEffect();
   });
 
   // Cart click
