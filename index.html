@@ -407,12 +407,22 @@ img{
 
 <script>
 const header = document.getElementById("mainHeader");
-window.addEventListener("scroll",function(){
-  if(window.scrollY>60){
+const hamburger = document.getElementById("hamburger");
+const navLinks = document.getElementById("navLinks");
+
+// Scroll Header Effect
+window.addEventListener("scroll", function () {
+  if (window.scrollY > 60) {
     header.classList.add("scrolled");
-  }else{
+  } else {
     header.classList.remove("scrolled");
   }
+});
+
+// Toggle Mobile Menu
+hamburger.addEventListener("click", function () {
+  hamburger.classList.toggle("active");
+  navLinks.classList.toggle("active");
 });
 </script>
 
