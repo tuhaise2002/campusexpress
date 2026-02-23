@@ -60,17 +60,38 @@
     }
 
     /* HEADER */
-       header{
-      background:#fff;
-      padding:1rem 0;
-      border-bottom:1px solid var(--border);
-      position:fixed;     /* ✅ stays in place */
+   header{
+      position:fixed;
       top:0;
       left:0;
       width:100%;
       z-index:1000;
+    
+      background:rgba(255,255,255,0.75);
+      backdrop-filter:blur(12px);
+      -webkit-backdrop-filter:blur(12px);
+    
+      border-bottom:1px solid rgba(0,0,0,0.06);
+      transition:all 0.3s ease;
+      padding:22px 0; /* larger default */
     }
 
+    header.shrink{
+      padding:12px 0; /* smaller when scrolling */
+      background:rgba(255,255,255,0.9);
+      box-shadow:0 8px 25px rgba(0,0,0,0.08);
+    }
+    
+    header.shrink .brand-logo{
+      width:42px;
+      height:42px;
+      transition:all 0.3s ease;
+    }
+    
+    header.shrink .brand-text{
+      font-size:1.3rem;
+      transition:all 0.3s ease;
+  }
     .nav{
       display:flex;
       align-items:center;
@@ -506,6 +527,18 @@
       © 2026 Campus Express Food – Direct from campus sellers to students in Kampala
     </div>
   </footer>
+  
+<script>
+window.addEventListener("scroll", function() {
+  const header = document.querySelector("header");
 
+  if (window.scrollY > 30) {
+    header.classList.add("shrink");
+  } else {
+    header.classList.remove("shrink");
+  }
+});
+</script>
+  
 </body>
 </html>
