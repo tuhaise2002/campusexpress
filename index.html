@@ -1,497 +1,321 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Campus Express Food – Vendors to Students</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Campus Express Food – Vendors to Students</title>
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
 
-  <style>
-    :root{
-      --primary:#c2410c;
-      --primary-dark:#9a3412;
-      --light:#fefce8;
-      --dark:#111827;
-      --gray:#4b5563;
-      --border:#e5e7eb;
-      --shadow:0 10px 25px rgba(17,24,39,0.08);
-      --shadow2:0 16px 35px rgba(17,24,39,0.12);
-      --radius:14px;
-    }
+<style>
+:root{
+  --primary:#c2410c;
+  --primary-dark:#9a3412;
+  --light:#fefce8;
+  --dark:#111827;
+  --gray:#4b5563;
+  --border:#e5e7eb;
+  --radius:14px;
+}
 
-    *{margin:0;padding:0;box-sizing:border-box}
-    body{
-      font-family:'Inter',system-ui,sans-serif;
-      background:var(--light);
-      color:var(--dark);
-      line-height:1.5;
-      font-size:1.05rem;
-    }
-    img{max-width:100%;display:block}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:'Inter',sans-serif;
+  background:var(--light);
+  color:var(--dark);
+  line-height:1.5;
+}
 
-    .container{
-      max-width:1100px;
-      margin:0 auto;
-      padding:0 1.5rem;
-    }
+img{display:block;max-width:100%}
 
-    /* HEADER */
-    header{
-      background:white;
-      padding:1rem 0;
-      border-bottom:1px solid var(--border);
-      position:sticky;
-      top:0;
-      z-index:10;
-      backdrop-filter:saturate(160%) blur(8px);
-    }
-    nav{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:1rem;
-    }
-    .logo{
-      font-family:'Poppins',sans-serif;
-      font-size:1.85rem;
-      font-weight:700;
-      color:var(--primary);
-      text-decoration:none;
-      letter-spacing:-0.02em;
-    }
+.container{
+  max-width:1100px;
+  margin:0 auto;
+  padding:0 1.5rem;
+}
 
-    /* HERO */
-    .hero{
-      background:linear-gradient(135deg,#fb923c 0%,#c2410c 100%);
-      color:white;
-      text-align:center;
-      padding:clamp(4rem,10vw,5rem) 1rem clamp(3rem,8vw,4rem);
-      position:relative;
-      overflow:hidden;
-    }
-    .hero::after{
-      content:"";
-      position:absolute;
-      inset:-80px -120px auto auto;
-      width:280px;
-      height:280px;
-      background:rgba(255,255,255,0.15);
-      border-radius:50%;
-      filter:blur(2px);
-      transform:rotate(10deg);
-    }
-    .hero h1{
-      font-family:'Poppins',sans-serif;
-      font-size:clamp(2.2rem,7vw,3.6rem);
-      margin-bottom:1rem;
-      position:relative;
-      z-index:1;
-    }
-    .hero p{
-      font-size:clamp(1.05rem,3.5vw,1.25rem);
-      max-width:720px;
-      margin:0 auto;
-      opacity:0.95;
-      position:relative;
-      z-index:1;
-    }
+/* HEADER */
+header{
+  background:white;
+  border-bottom:1px solid var(--border);
+  padding:1rem 0;
+  position:sticky;
+  top:0;
+  z-index:10;
+}
 
-    .section{padding:clamp(3rem,8vw,4rem) 0}
-    h2{
-      text-align:center;
-      font-family:'Poppins',sans-serif;
-      font-size:clamp(1.7rem,5vw,2.15rem);
-      margin-bottom:2.2rem;
-    }
+.nav{
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+}
 
-    /* LISTINGS GRID */
-    .listings{
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
-      gap:1.6rem;
-    }
+.brand{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  text-decoration:none;
+}
 
-    .listing-card{
-      background:white;
-      border-radius:var(--radius);
-      overflow:hidden;
-      border:1px solid var(--border);
-      box-shadow:var(--shadow);
-      transition:transform .18s ease, box-shadow .18s ease;
-    }
-    .listing-card:hover{
-      transform:translateY(-4px);
-      box-shadow:var(--shadow2);
-    }
+.brand-logo{
+  width:55px;
+  height:55px;
+  object-fit:contain;
+}
 
-    /* FIXED IMAGE WRAP (ONLY ONE .listing-img RULE NOW) */
-    .listing-img{
-      width:100%;
-      height:220px;               /* uniform */
-      overflow:hidden;
-      background:#fef3e8;
-      border-radius:var(--radius) var(--radius) 0 0;
-      position:relative;
-    }
-    .listing-img img{
-      width:100%;
-      height:100%;
-      object-fit:cover;           /* fills card perfectly */
-      object-position:center;
-      transform:scale(1);
-      transition:transform .25s ease;
-    }
-    .listing-card:hover .listing-img img{
-      transform:scale(1.04);
-    }
+.brand-text{
+  font-family:'Poppins',sans-serif;
+  font-size:1.6rem;
+  font-weight:700;
+  color:var(--primary);
+  white-space:nowrap;
+}
 
-    .listing-info{padding:1.2rem 1.2rem 1.35rem}
-    .listing-title{
-      font-size:1.15rem;
-      font-weight:600;
-      margin-bottom:.4rem;
-    }
-    .listing-price{
-      font-size:1.35rem;
-      font-weight:800;
-      color:var(--primary);
-      margin-bottom:.7rem;
-    }
-    .listing-vendor{
-      font-size:.95rem;
-      color:var(--gray);
-      margin-bottom:.9rem;
-    }
+/* HERO */
+.hero{
+  background:linear-gradient(135deg,#fb923c 0%,#c2410c 100%);
+  color:white;
+  text-align:center;
+  padding:4.5rem 1rem 3.5rem;
+}
 
-    .cta{
-      display:flex;
-      gap:.7rem;
-      align-items:center;
-      justify-content:space-between;
-      flex-wrap:wrap;
-    }
-    .badge{
-      display:inline-flex;
-      align-items:center;
-      gap:.45rem;
-      padding:.5rem .7rem;
-      border-radius:999px;
-      background:#ecfdf5;
-      color:#16a34a;
-      font-weight:600;
-      font-size:.92rem;
-      border:1px solid #bbf7d0;
-    }
-    .order-links{
-      display:flex;
-      gap:.6rem;
-    }
-    .btn{
-      appearance:none;
-      border:none;
-      cursor:pointer;
-      font-weight:700;
-      padding:.65rem .9rem;
-      border-radius:10px;
-      text-decoration:none;
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      transition:transform .12s ease, opacity .12s ease;
-    }
-    .btn:active{transform:scale(.98)}
-    .btn-call{
-      background:#111827;
-      color:white;
-    }
-    .btn-wa{
-      background:#16a34a;
-      color:white;
-    }
-    .btn:hover{opacity:.92}
+.hero h1{
+  font-family:'Poppins',sans-serif;
+  font-size:3rem;
+  margin-bottom:1rem;
+}
 
-    /* VENDOR SECTION */
-    .vendor-section{
-      background:var(--primary);
-      color:white;
-      text-align:center;
-      padding:clamp(4rem,10vw,5rem) 1rem;
-    }
-    .vendor-section h2{color:white;margin-bottom:1rem}
-    .vendor-section p{max-width:800px;margin:0 auto}
+.hero p{
+  font-size:1.2rem;
+  max-width:700px;
+  margin:0 auto;
+}
 
-    /* FORM */
-    form{
-      max-width:780px;
-      margin:2rem auto 0;
-      background:white;
-      color:var(--dark);
-      padding:clamp(1.4rem,5vw,2.2rem);
-      border-radius:var(--radius);
-      box-shadow:0 12px 32px rgba(0,0,0,0.12);
-      text-align:left;
-    }
-    .form-grid{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:1rem;
-    }
-    @media (max-width:720px){
-      .form-grid{grid-template-columns:1fr}
-    }
+/* SECTION */
+.section{padding:4rem 0}
 
-    label{
-      display:block;
-      margin-bottom:.45rem;
-      font-weight:700;
-      font-size:1rem;
-    }
-    input[type="text"],
-    input[type="tel"],
-    input[type="email"],
-    textarea,
-    input[type="file"]{
-      width:100%;
-      padding:.9rem 1rem;
-      font-size:1.05rem;
-      border:1px solid #d1d5db;
-      border-radius:12px;
-      outline:none;
-      background:#fff;
-    }
-    input:focus, textarea:focus{
-      border-color:#fb923c;
-      box-shadow:0 0 0 4px rgba(251,146,60,.25);
-    }
-    textarea{resize:vertical;min-height:150px}
-    input[type="file"]{background:#f9fafb}
-    small{display:block;margin-top:.5rem;color:#6b7280;font-size:.9rem}
+h2{
+  text-align:center;
+  font-family:'Poppins',sans-serif;
+  font-size:2rem;
+  margin-bottom:2.5rem;
+}
 
-    .submit-btn{
-      width:100%;
-      background:var(--primary);
-      color:white;
-      padding:1.05rem;
-      border:none;
-      border-radius:12px;
-      font-weight:800;
-      font-size:1.1rem;
-      cursor:pointer;
-      min-height:52px;
-      margin-top:1rem;
-      transition:background .15s ease, transform .12s ease;
-    }
-    .submit-btn:hover{background:var(--primary-dark)}
-    .submit-btn:active{transform:scale(.99)}
+/* LISTINGS */
+.listings{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:1.6rem;
+}
 
-    footer{
-      background:var(--dark);
-      color:#d1d5db;
-      text-align:center;
-      padding:2.2rem 1rem;
-      font-size:.95rem;
-    }
+.listing-card{
+  background:white;
+  border-radius:var(--radius);
+  overflow:hidden;
+  border:1px solid var(--border);
+  transition:.2s ease;
+}
 
-    @media (max-width:600px){
-      .hero{padding:4rem 1rem 3rem}
-      .hero h1{font-size:2.3rem}
-      .hero p{font-size:1.1rem}
-      .listing-img{height:200px}
-    }
-  </style>
+.listing-card:hover{
+  transform:translateY(-5px);
+  box-shadow:0 15px 30px rgba(0,0,0,0.08);
+}
+
+.listing-img{
+  width:100%;
+  height:220px;
+  overflow:hidden;
+}
+
+.listing-img img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  transition:.3s ease;
+}
+
+.listing-card:hover .listing-img img{
+  transform:scale(1.05);
+}
+
+.listing-info{padding:1.2rem}
+
+.listing-title{
+  font-size:1.1rem;
+  font-weight:600;
+  margin-bottom:.4rem;
+}
+
+.listing-price{
+  font-size:1.3rem;
+  font-weight:700;
+  color:var(--primary);
+  margin-bottom:.7rem;
+}
+
+.listing-vendor{
+  font-size:.95rem;
+  color:var(--gray);
+  margin-bottom:1rem;
+}
+
+.buttons{
+  display:flex;
+  gap:.6rem;
+}
+
+.btn{
+  flex:1;
+  text-align:center;
+  padding:.6rem;
+  border-radius:8px;
+  font-weight:600;
+  text-decoration:none;
+  color:white;
+}
+
+.btn-call{background:#111827;}
+.btn-wa{background:#16a34a;}
+
+/* VENDOR SECTION */
+.vendor-section{
+  background:var(--primary);
+  color:white;
+  text-align:center;
+  padding:4rem 1rem;
+}
+
+.vendor-section h2{color:white;margin-bottom:1rem;}
+
+form{
+  max-width:750px;
+  margin:2rem auto 0;
+  background:white;
+  padding:2rem;
+  border-radius:var(--radius);
+  color:var(--dark);
+}
+
+label{
+  display:block;
+  margin-bottom:.4rem;
+  font-weight:600;
+}
+
+input,textarea{
+  width:100%;
+  padding:.9rem;
+  margin-bottom:1rem;
+  border-radius:10px;
+  border:1px solid #d1d5db;
+}
+
+textarea{resize:vertical;min-height:130px}
+
+button{
+  width:100%;
+  background:var(--primary);
+  color:white;
+  padding:1rem;
+  border:none;
+  border-radius:10px;
+  font-weight:700;
+  cursor:pointer;
+}
+
+button:hover{background:var(--primary-dark);}
+
+footer{
+  background:var(--dark);
+  color:#d1d5db;
+  text-align:center;
+  padding:2rem 1rem;
+  font-size:.9rem;
+}
+
+/* MOBILE */
+@media(max-width:600px){
+  .hero h1{font-size:2.2rem}
+  .brand-text{font-size:1.3rem}
+}
+</style>
 </head>
 
 <body>
-  <header>
-    <div class="container">
-      <nav>
-        <a href="#" class="brand">
-          <img src="1logo.png" alt="Campus Express Food Logo" style="width:50px;height:50px;object-fit:contain;">
-          <span style="font-weight:700;font-size:1.5rem;color:#c2410c;">Campus Express Food</span>
-        </a>
-      </nav>
-    </div>
-  </header>
 
-  <section class="hero">
-    <div class="container">
-      <h1>Order food direct from campus vendors</h1>
-      <p>They cook fresh and deliver themselves.<br>Browse listings — contact via call/WhatsApp.</p>
-    </div>
-  </section>
+<header>
+  <div class="container">
+    <nav class="nav">
+      <a href="#" class="brand">
+        <img src="1logo.png" alt="Campus Express Food Logo" class="brand-logo">
+        <span class="brand-text">Campus Express Food</span>
+      </a>
+    </nav>
+  </div>
+</header>
 
-  <section class="section">
-    <div class="container">
-      <h2>Current Campus Listings</h2>
+<section class="hero">
+  <div class="container">
+    <h1>Order food direct from campus vendors</h1>
+    <p>They cook fresh and deliver themselves. Browse listings — contact via call or WhatsApp.</p>
+  </div>
+</section>
 
-      <div class="listings">
-        <!-- CARD 1 -->
-        <div class="listing-card">
-          <div class="listing-img">
-            <img src="https://images.pexels.com/photos/825661/pexels-photo-825661.jpeg" alt="Pizza on wooden board">
-          </div>
-          <div class="listing-info">
-            <div class="listing-title">Pizza (slice / full)</div>
-            <div class="listing-price">UGX 15,000 – 45,000</div>
-            <div class="listing-vendor">Vendor: Pizza Spot – Campus vicinity</div>
+<section class="section">
+  <div class="container">
+    <h2>Current Campus Listings</h2>
 
-            <div class="cta">
-              <span class="badge">Call/WhatsApp to order</span>
-              <div class="order-links">
-                <a class="btn btn-call" href="tel:+256700000000">Call</a>
-                <a class="btn btn-wa" href="https://wa.me/256700000000" target="_blank" rel="noopener">WhatsApp</a>
-              </div>
-            </div>
+    <div class="listings">
+
+      <div class="listing-card">
+        <div class="listing-img">
+          <img src="https://images.pexels.com/photos/825661/pexels-photo-825661.jpeg">
+        </div>
+        <div class="listing-info">
+          <div class="listing-title">Pizza (slice / full)</div>
+          <div class="listing-price">UGX 15,000 – 45,000</div>
+          <div class="listing-vendor">Pizza Spot – Campus vicinity</div>
+          <div class="buttons">
+            <a href="tel:+256700000000" class="btn btn-call">Call</a>
+            <a href="https://wa.me/256700000000" class="btn btn-wa">WhatsApp</a>
           </div>
         </div>
-
-        <!-- CARD 2 -->
-        <div class="listing-card">
-          <div class="listing-img">
-            <img src="https://images.pexels.com/photos/2456435/pexels-photo-2456435.jpeg" alt="Indomie with egg and veggies">
-          </div>
-          <div class="listing-info">
-            <div class="listing-title">Indomie + Egg + Veggies (single / double)</div>
-            <div class="listing-price">UGX 6,000 – 12,000</div>
-            <div class="listing-vendor">Vendor: Indomie Mama – Makerere</div>
-
-            <div class="cta">
-              <span class="badge">Call/WhatsApp to order</span>
-              <div class="order-links">
-                <a class="btn btn-call" href="tel:+256700000000">Call</a>
-                <a class="btn btn-wa" href="https://wa.me/256700000000" target="_blank" rel="noopener">WhatsApp</a>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- CARD 3 -->
-        <div class="listing-card">
-          <div class="listing-img">
-            <img src="https://images.pexels.com/photos/1583884/pexels-photo-1583884.jpeg" alt="Fried chips">
-          </div>
-          <div class="listing-info">
-            <div class="listing-title">Chips (Biggy / Noodles mix packs)</div>
-            <div class="listing-price">UGX 20,000 – 30,000 (bulk)</div>
-            <div class="listing-vendor">Vendor: Snacks Corner – Kikumi / Bwaise</div>
-
-            <div class="cta">
-              <span class="badge">Call/WhatsApp to order</span>
-              <div class="order-links">
-                <a class="btn btn-call" href="tel:+256700000000">Call</a>
-                <a class="btn btn-wa" href="https://wa.me/256700000000" target="_blank" rel="noopener">WhatsApp</a>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- CARD 4 -->
-        <div class="listing-card">
-          <div class="listing-img">
-            <img src="https://images.pexels.com/photos/1384039/pexels-photo-1384039.jpeg" alt="Soda bottles mix">
-          </div>
-          <div class="listing-info">
-            <div class="listing-title">Soda Mix (Coke, Fanta, Sprite 500ml)</div>
-            <div class="listing-price">UGX 15,000 – 25,000 (6-pack)</div>
-            <div class="listing-vendor">Vendor: Cold Drinks – Campus vicinity</div>
-
-            <div class="cta">
-              <span class="badge">Call/WhatsApp to order</span>
-              <div class="order-links">
-                <a class="btn btn-call" href="tel:+256700000000">Call</a>
-                <a class="btn btn-wa" href="https://wa.me/256700000000" target="_blank" rel="noopener">WhatsApp</a>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- CARD 5 -->
-        <div class="listing-card">
-          <div class="listing-img">
-            <img src="https://images.pexels.com/photos/18411466/pexels-photo-18411466.jpeg" alt="Katogo with sides">
-          </div>
-          <div class="listing-info">
-            <div class="listing-title">Katogo (beans + matooke / posho)</div>
-            <div class="listing-price">UGX 8,000 – 12,000</div>
-            <div class="listing-vendor">Vendor: Katogo Spot – Makerere / Kyambogo</div>
-
-            <div class="cta">
-              <span class="badge">Call/WhatsApp to order</span>
-              <div class="order-links">
-                <a class="btn btn-call" href="tel:+256700000000">Call</a>
-                <a class="btn btn-wa" href="https://wa.me/256700000000" target="_blank" rel="noopener">WhatsApp</a>
-              </div>
-            </div>
-          </div>
-        </div>
-
       </div>
+
+      <!-- Add other cards same way -->
+
     </div>
-  </section>
+  </div>
+</section>
 
-  <section class="vendor-section">
-    <div class="container">
-      <h2>Are you a campus food seller?</h2>
-      <p>Upload your own food items & prices — add photos too.<br>We'll review quickly and list approved ones for students to see.</p>
+<section class="vendor-section">
+  <div class="container">
+    <h2>Are you a campus food seller?</h2>
+    <p>Upload your items and prices. We'll review and list approved vendors.</p>
 
-      <form action="https://api.web3forms.com/submit" method="POST" enctype="multipart/form-data">
-        <!-- Replace with your real Web3Forms Access Key -->
-        <input type="hidden" name="access_key" value="YOUR_ACCESS_KEY_HERE">
-        <!-- Optional redirect -->
-        <input type="hidden" name="redirect" value="https://your-site.com/thanks.html">
+    <form>
+      <label>Your Name / Shop Name *</label>
+      <input type="text" required>
 
-        <div class="form-grid">
-          <div>
-            <label for="vendor-name">Your Name / Shop Name *</label>
-            <input type="text" id="vendor-name" name="vendor_name" required>
-          </div>
+      <label>WhatsApp / Phone *</label>
+      <input type="tel" required>
 
-          <div>
-            <label for="phone">WhatsApp / Phone Number *</label>
-            <input type="tel" id="phone" name="phone" required placeholder="+256 7xx xxx xxx">
-          </div>
-        </div>
+      <label>Location *</label>
+      <input type="text" required>
 
-        <div style="margin-top:1rem;">
-          <label for="location">Campus Area / Location *</label>
-          <input type="text" id="location" name="location" required placeholder="e.g. Wandegeya, Kikoni, Makerere North">
-        </div>
+      <label>Food Items & Prices *</label>
+      <textarea required></textarea>
 
-        <div style="margin-top:1rem;">
-          <label for="menu">Food Items & Prices *</label>
-          <textarea id="menu" name="menu" required
-            placeholder="Example:
-• Rolex (eggs + veggies) - UGX 5,000 - 8,000
-• Indomie + egg - UGX 6,000
-• Chips small pack - UGX 2,000
-• Soda 500ml - UGX 3,000"></textarea>
-        </div>
+      <button type="submit">Upload My Food Items</button>
+    </form>
+  </div>
+</section>
 
-        <div style="margin-top:1rem;">
-          <label for="photos">Upload Photos of Your Food / Menu (optional – up to 3–4 best ones)</label>
-          <input type="file" id="photos" name="attachment[]" accept="image/*" multiple>
-          <small>jpg / png — max ~5MB each recommended</small>
-        </div>
+<footer>
+  © 2026 Campus Express Food – Direct from campus sellers to students in Kampala
+</footer>
 
-        <!-- Honeypot -->
-        <input type="text" name="_gotcha" style="display:none;" />
-
-        <button class="submit-btn" type="submit">Upload My Food Items</button>
-      </form>
-
-      <p style="margin-top: 1.5rem; font-size: 0.95rem; opacity: 0.9;">
-        Submissions go straight to us — we'll review & add good ones within 1–2 days. Thanks!
-      </p>
-    </div>
-  </section>
-
-  <footer>
-    <div class="container">
-      © 2026 Campus Express Food – Direct from campus sellers to students in Kampala
-    </div>
-  </footer>
 </body>
 </html>
