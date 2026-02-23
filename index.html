@@ -546,6 +546,14 @@
       © 2026 Campus Express Food – Direct from campus sellers to students in Kampala
     </div>
   </footer>
+
+  // Back to top
+  const backToTop = document.getElementById("backToTop");
+  window.addEventListener("scroll", () => {
+    if (!backToTop) return;
+    backToTop.classList.toggle("show", window.scrollY > 400);
+  });
+  backToTop?.addEventListener("click", () => window.scrollTo({top:0, behavior:"smooth"}));
   
 <script>
 window.addEventListener("scroll", function() {
