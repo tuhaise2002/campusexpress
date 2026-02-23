@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+  <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -350,6 +350,25 @@
       font-size:.95rem;
     }
 
+    .back-to-top{
+        position:fixed;
+        right:18px;
+        bottom:18px;
+        width:48px;
+        height:48px;
+        border-radius:999px;
+        border:1px solid rgba(0,0,0,0.08);
+        background:rgba(255,255,255,0.85);
+        backdrop-filter:blur(10px);
+        -webkit-backdrop-filter:blur(10px);
+        box-shadow:0 10px 25px rgba(0,0,0,0.12);
+        cursor:pointer;
+        display:none;
+        font-size:18px;
+        font-weight:900;
+}
+.back-to-top.show{display:block;}
+
     /* MOBILE TWEAKS */
     @media (max-width: 720px){
       .form-grid{ grid-template-columns:1fr; }
@@ -499,10 +518,10 @@
           <label for="menu">Food Items & Prices *</label>
           <textarea id="menu" name="menu" required
             placeholder="Example:
-• Rolex (eggs + veggies) - UGX 5,000 - 8,000
-• Indomie + egg - UGX 6,000
-• Chips small pack - UGX 2,000
-• Soda 500ml - UGX 3,000"></textarea>
+                • Rolex (eggs + veggies) - UGX 5,000 - 8,000
+                • Indomie + egg - UGX 6,000
+                • Chips small pack - UGX 2,000
+                • Soda 500ml - UGX 3,000"></textarea>
         </div>
 
         <div style="margin-top:1rem;">
@@ -539,6 +558,8 @@ window.addEventListener("scroll", function() {
   }
 });
 </script>
+
+<button id="backToTop" class="back-to-top" aria-label="Back to top">↑</button>
   
 </body>
 </html>
