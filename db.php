@@ -1,8 +1,9 @@
 <?php
-$host = getenv("DB_HOST") ?: "localhost";
-$user = getenv("DB_USER") ?: "root";
-$password = getenv("DB_PASS") ?: "";
-$database = getenv("DB_NAME") ?: "campus-express";
+
+$host = getenv("DB_HOST");
+$user = getenv("DB_USER");
+$password = getenv("DB_PASS");
+$database = getenv("DB_NAME");
 
 $conn = new mysqli($host, $user, $password, $database);
 
