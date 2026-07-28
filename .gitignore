@@ -1,0 +1,8 @@
+.env
+.env.*
+!.env.example
+uploads/*
+!uploads/.htaccess
+!uploads/index.html
+*.log
+work/

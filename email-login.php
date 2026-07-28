@@ -40,7 +40,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 <!DOCTYPE html>
 <html>
-<head><title>Email Login</title></head>
+<head>
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=2"><title>Email Login</title></head>
 <body>
 <h2>Login with Email</h2>
 
