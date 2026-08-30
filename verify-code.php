@@ -17,7 +17,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $submitted_code = trim($_POST["code"]);
 
     // Verify code
-    $stmt = $conn->prepare("SELECT id FROM email_logins WHERE email = ? AND code = ? AND expires_at > NOW() ORDER BY id DESC LIMIT 1");
+    $stmt = $conn->prepare("SELECT id FROM otps WHERE email = ? AND otp_code = ? AND expires_at > NOW() ORDER BY id DESC LIMIT 1");
     $stmt->bind_param("ss", $email, $submitted_code);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -32,8 +32,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         if ($user_result->num_rows === 1) {
             $user = $user_result->fetch_assoc();
             $user_id = $user["id"];
-            // Update last login
-            $conn->prepare("UPDATE users SET last_login = NOW() WHERE id = $user_id")->execute();
         } else {
             // Create new user
             $new_user = $conn->prepare("INSERT INTO users (email) VALUES (?)");
@@ -47,7 +45,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $_SESSION["user_email"] = $email;
 
         // Clean up used code
-        $conn->prepare("DELETE FROM email_logins WHERE email = ?")->execute([$email]);
+        $conn->prepare("DELETE FROM otps WHERE email = ?")->execute([$email]);
 
         // Clear session vars
         unset($_SESSION["pending_email"], $_SESSION["next_url"], $_SESSION["debug_code"]);

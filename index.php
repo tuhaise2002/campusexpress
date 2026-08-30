@@ -1,362 +1,316 @@
 <?php
-session_start();
 include "db.php";
 
-$success = "";
-$error = "";
+$search = isset($_GET['search']) ? trim($_GET['search']) : '';
+$category = isset($_GET['category']) ? trim($_GET['category']) : '';
+$available = isset($_GET['available']) ? trim($_GET['available']) : '';
 
-// Handle vendor form submission
-if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["vendor_name"])) {
-    $vendor_name = trim($_POST["vendor_name"]);
-    $phone = trim($_POST["phone"]);
-    $location = trim($_POST["location"]);
-    $menu = trim($_POST["menu"]);
+$sql = "SELECT menu_items.*, vendors.vendor_name, vendors.phone
+        FROM menu_items
+        JOIN vendors ON menu_items.vendor_id = vendors.id
+        WHERE vendors.status = 'Approved'"; // Only show items from approved vendors
 
-    // Handle file uploads
-    $photos = [];
-    if (!empty($_FILES["attachment"]["name"][0])) {
-        $upload_dir = "uploads/";
-        if (!is_dir($upload_dir)) {
-            mkdir($upload_dir, 0755, true);
-        }
+$params = [];
+$types = "";
 
-        foreach ($_FILES["attachment"]["tmp_name"] as $key => $tmp_name) {
-            if ($_FILES["attachment"]["error"][$key] === UPLOAD_ERR_OK) {
-                $filename = uniqid() . "_" . basename($_FILES["attachment"]["name"][$key]);
-                $filepath = $upload_dir . $filename;
-                if (move_uploaded_file($tmp_name, $filepath)) {
-                    $photos[] = $filepath;
-                }
-            }
-        }
-    }
-
-    // Insert vendor submission
-    $stmt = $conn->prepare("INSERT INTO vendors (vendor_name, phone, location, menu, photos) VALUES (?, ?, ?, ?, ?)");
-    $photos_json = json_encode($photos);
-    $stmt->bind_param("sssss", $vendor_name, $phone, $location, $menu, $photos_json);
-
-    if ($stmt->execute()) {
-        $success = "Thank you! Your food items have been submitted for review. We'll contact you soon.";
-    } else {
-        $error = "Something went wrong. Please try again.";
-    }
+if ($search !== "") {
+    $sql .= " AND (menu_items.food_name LIKE ? OR menu_items.description LIKE ? OR vendors.vendor_name LIKE ?)";
+    $searchLike = "%" . $search . "%";
+    $params[] = $searchLike;
+    $params[] = $searchLike;
+    $params[] = $searchLike;
+    $types .= "sss";
 }
 
-// Check if user is logged in
-$is_logged_in = isset($_SESSION["user_id"]);
-$user_email = $_SESSION["user_email"] ?? "";
+if ($category !== "") {
+    $sql .= " AND menu_items.category = ?";
+    $params[] = $category;
+    $types .= "s";
+}
+
+if ($available === "1") {
+    $sql .= " AND menu_items.status = 'Available'";
+}
+
+$sql .= " ORDER BY menu_items.id DESC";
+
+$stmt = $conn->prepare($sql);
+
+if (!empty($params)) {
+    $stmt->bind_param($types, ...$params);
+}
+
+$stmt->execute();
+$result = $stmt->get_result();
+$count = $result->num_rows;
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Campus Express Food – Vendors to Students</title>
-   <link rel="stylesheet" href="style.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=2">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CampusExpress | Student Marketplace</title>
+  <link rel="stylesheet" href="style.css">
   <style>
-    .user-nav {
-      display: flex;
-      align-items: center;
-      gap: 12px;
+    .hero {
+        padding: 100px 0;
+        background: linear-gradient(rgba(15, 23, 42, 0.75), rgba(15, 23, 42, 0.85)),
+                    url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1600&q=80');
+        background-size: cover;
+        background-position: center;
+        border-radius: 0 0 var(--radius-xl) var(--radius-xl);
+        color: white;
+        text-align: center;
+        margin-bottom: 0;
     }
-    .user-nav a {
-      text-decoration: none;
-      color: var(--dark);
-      font-weight: 600;
-      padding: 8px 16px;
-      border-radius: 8px;
-      transition: background 0.2s;
-    }
-    .user-nav a:hover {
-      background: rgba(0,0,0,0.05);
-    }
-    .user-nav .login-btn {
-      background: var(--primary);
-      color: white;
-    }
-    .user-nav .login-btn:hover {
-      background: var(--primary-dark);
-    }
-    .user-nav .logout-btn {
-      color: #dc2626;
-    }
-    .alert {
-      padding: 1rem;
-      border-radius: 12px;
-      margin-bottom: 1.5rem;
-      font-weight: 500;
-    }
-    .alert-success {
-      background: #dcfce7;
-      color: #166534;
-      border: 1px solid #bbf7d0;
-    }
-    .alert-error {
-      background: #fef2f2;
-      color: #dc2626;
-      border: 1px solid #fecaca;
-    }
-  </style>
-</head>
+    .hero h1 { font-size: clamp(2.5rem, 8vw, 4rem); line-height: 1.1; margin-bottom: 20px; }
+    .hero p { font-size: 1.2rem; opacity: 0.9; max-width: 600px; margin: 0 auto 30px; }
 
+    .filter-bar {
+        margin-top: -60px;
+        position: relative;
+        z-index: 10;
+    }
+    .filter-card {
+        padding: 30px;
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr auto;
+        gap: 15px;
+        align-items: end;
+    }
+
+    .item-card {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        position: relative;
+    }
+    .item-image {
+        height: 220px;
+        width: 100%;
+        object-fit: cover;
+    }
+    .item-content {
+        padding: 20px;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    .item-vendor {
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: var(--primary);
+        text-transform: uppercase;
+        margin-bottom: 5px;
+    }
+    .item-price {
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: var(--text-main);
+    }
+    .item-actions {
+        margin-top: 20px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    .status-badge-float {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: rgba(255,255,255,0.9);
+        backdrop-filter: blur(4px);
+    }
+
+    .marketplace-topbar { background: #14213d; color: white; border-top: 3px solid #ff6b0b; }
+    .marketplace-nav-inner { min-height: 66px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+    .marketplace-brand { display: inline-flex; align-items: center; gap: 11px; color: white; font-size: 1.35rem; font-weight: 800; }
+    .marketplace-brand .site-logo-image { width: 46px; height: 46px; }
+    .marketplace-account-actions { display: flex; align-items: center; gap: 22px; font-size: .86rem; font-weight: 700; white-space: nowrap; }
+    .customer-entry-links { display: flex; align-items: center; gap: 9px; }
+    .customer-entry-links a, .marketplace-text-link { color: white; }
+    .customer-entry-links a:hover, .marketplace-text-link:hover { color: #ffb27f; }
+    .marketplace-separator { color: #64748b; }
+    .marketplace-sell-button { min-width: 120px; padding: 13px 24px; border-radius: 9px; background: #ff6b0b; color: white; text-align: center; box-shadow: 0 6px 16px rgba(255,107,11,.25); }
+    .marketplace-sell-button:hover { background: #e85d04; transform: translateY(-1px); }
+    .marketplace-identity { color: #e2e8f0; font-weight: 600; }
+
+    .site-footer { background: #0f172a; color: white; margin-top: 30px; }
+    .footer-main { display: grid; grid-template-columns: minmax(260px, 1.8fr) 1fr 1fr; gap: 60px; padding: 58px 0 44px; }
+    .footer-logo { color: white; margin-bottom: 16px; }
+    .footer-brand p { max-width: 410px; color: #94a3b8; font-size: .9rem; line-height: 1.7; }
+    .footer-links { display: flex; flex-direction: column; align-items: flex-start; gap: 11px; }
+    .footer-links h3 { color: white; font-size: .86rem; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 5px; }
+    .footer-links a { color: #cbd5e1; font-size: .88rem; }
+    .footer-links a:hover, .footer-links a:focus { color: white; }
+    .footer-bottom { display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 20px 0; border-top: 1px solid #273449; color: #94a3b8; font-size: .78rem; }
+    .admin-access { color: #64748b; font-weight: 600; }
+    .admin-access:hover, .admin-access:focus { color: #cbd5e1; }
+
+    @media (max-width: 992px) {
+        .filter-card { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 768px) {
+        .marketplace-nav-inner { min-height: 60px; gap: 8px; }
+        .marketplace-brand span { display: none; }
+        .marketplace-brand .site-logo-image { width: 40px; height: 40px; }
+        .marketplace-account-actions { gap: 8px; font-size: .72rem; }
+        .customer-entry-links { gap: 5px; }
+        .marketplace-sell-button { min-width: auto; padding: 10px 12px; border-radius: 7px; }
+        .marketplace-identity { display: none; }
+        .footer-main { grid-template-columns: 1fr 1fr; gap: 34px 24px; padding: 42px 0 32px; }
+        .footer-brand { grid-column: 1 / -1; min-width: 0; }
+        .footer-brand p { max-width: 100%; }
+        .footer-logo { width: auto; }
+        .footer-bottom { align-items: flex-start; }
+        .filter-card { grid-template-columns: 1fr; margin-top: -30px; }
+        .hero { padding: 80px 0 100px; }
+    }  </style>
+</head>
 <body>
 
-  <header>
-    <div class="container">
-      <nav class="nav">
-        <a href="index.php" class="brand">
-          <img src="1logo.png" alt="Campus Express Food Logo" class="brand-logo">
-          <span class="brand-text">Campus Express Food</span>
-        </a>
+  <nav class="marketplace-topbar" aria-label="Main navigation">
+    <div class="container marketplace-nav-inner">
+      <a href="index.php" class="marketplace-brand" aria-label="CampusExpress home">
+        <img src="logo-128.png?v=2" alt="" class="site-logo-image" width="46" height="46">
+        <span>CampusExpress</span>
+      </a>
 
-        <div class="header-search">
-          <input id="headerSearch" type="text" placeholder="Search food…">
+      <div class="marketplace-account-actions">
+        <?php if(isset($_SESSION['user_id'])): ?>
+          <span class="marketplace-identity"><?php echo e($_SESSION['user_email']); ?></span>
+          <a href="logout.php" class="marketplace-text-link">Logout</a>
+        <?php elseif(isset($_SESSION['vendor_id'])): ?>
+          <a href="dashboard.php" class="marketplace-text-link">Vendor Dashboard</a>
+          <span class="marketplace-separator">|</span>
+          <a href="logout.php" class="marketplace-text-link">Logout</a>
+        <?php else: ?>
+          <div class="customer-entry-links">
+            <a href="user_login.php">Sign in</a>
+            <span class="marketplace-separator">|</span>
+            <a href="user_login.php?mode=register">Registration</a>
+          </div>
+          <a href="register.php" class="marketplace-sell-button">SELL</a>
+        <?php endif; ?>
+      </div>
+    </div>
+  </nav><header class="hero">
+    <div class="container animate-fade">
+        <span class="badge" style="background: var(--primary); color: white; margin-bottom: 20px;">University Marketplace</span>
+        <h1>Campus Favorites, <br>Delivered Daily.</h1>
+        <p>The smartest way to find the best campus vendors. Fresh meals, stationery, and essentials at your fingertips.</p>
+        <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+            <a href="#marketplace" class="btn btn-primary" style="padding: 15px 30px;">Browse Market</a>
+            <a href="register.php" class="btn btn-outline" style="padding: 15px 30px; border-color: white; color: white;">Become a Vendor</a>
         </div>
-
-        <div class="user-nav">
-          <?php if ($is_logged_in): ?>
-            <span>Welcome, <?php echo htmlspecialchars($user_email); ?></span>
-            <a href="logout.php" class="logout-btn">Logout</a>
-          <?php else: ?>
-            <a href="email-login.php" class="login-btn">Login</a>
-          <?php endif; ?>
-        </div>
-      </nav>
     </div>
   </header>
 
-  <section class="hero">
-    <div class="container">
-      <h1>Order food direct from campus vendors</h1>
-      <p>They cook fresh and deliver themselves. Browse listings — contact via call/WhatsApp.</p>
-
-      <div class="hero-cta">
-        <a class="hero-btn" href="#listings">Browse Listings</a>
-        <a class="hero-btn-outline" href="#vendor">Become a Vendor</a>
-      </div>
-    </div>
+  <section class="container filter-bar" id="marketplace">
+    <form class="card filter-card glass animate-fade" style="animation-delay: 0.2s;" method="GET">
+        <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label">Search Items</label>
+            <input type="text" name="search" class="form-control" placeholder="Rolex, Rice, Stationery..." value="<?php echo htmlspecialchars($search); ?>">
+        </div>
+        <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label">Category</label>
+            <select name="category" class="form-control">
+                <option value="">All Categories</option>
+                <option value="Food" <?php echo $category == 'Food' ? 'selected' : ''; ?>>Food</option>
+                <option value="Drinks" <?php echo $category == 'Drinks' ? 'selected' : ''; ?>>Drinks</option>
+                <option value="Snacks" <?php echo $category == 'Snacks' ? 'selected' : ''; ?>>Snacks</option>
+                <option value="Groceries" <?php echo $category == 'Groceries' ? 'selected' : ''; ?>>Groceries</option>
+                <option value="Stationery" <?php echo $category == 'Stationery' ? 'selected' : ''; ?>>Stationery</option>
+            </select>
+        </div>
+        <div class="form-group" style="margin-bottom: 0; display: flex; align-items: center; gap: 10px; padding-bottom: 12px;">
+            <input type="checkbox" name="available" value="1" id="avail" <?php echo $available == '1' ? 'checked' : ''; ?> style="width: 20px; height: 20px;">
+            <label for="avail" style="font-weight: 700; font-size: 0.85rem; cursor: pointer; color: var(--text-muted);">Available Only</label>
+        </div>
+        <button type="submit" class="btn btn-primary" style="padding: 14px 25px;">Search</button>
+    </form>
   </section>
 
-  <section class="section" id="listings">
-    <div class="container">
-      <h2>Current Campus Listings</h2>
-
-      <div class="toolbar">
-        <input id="searchInput" class="search-input" type="text" placeholder="Search food… (pizza, katogo, soda)">
-        <div class="filters" id="filterBar">
-          <button class="filter-btn active" data-filter="all">All</button>
-          <button class="filter-btn" data-filter="fast">Fast Food</button>
-          <button class="filter-btn" data-filter="local">Local</button>
-          <button class="filter-btn" data-filter="drinks">Drinks</button>
-          <button class="filter-btn" data-filter="snacks">Snacks</button>
-        </div>
-      </div>
-
-      <div class="listings">
-        <div class="listing-card" data-category="fast">
-          <div class="listing-img">
-            <img src="https://images.pexels.com/photos/825661/pexels-photo-825661.jpeg" alt="Pizza on wooden board">
-          </div>
-          <div class="listing-info">
-            <div class="listing-title">Pizza (slice / full)</div>
-            <div class="listing-price">UGX 15,000 – 45,000</div>
-            <div class="listing-vendor">Vendor: Pizza Spot – Campus vicinity</div>
-            <div class="buttons">
-              <a class="btn btn-call" href="tel:+256700000000">Call</a>
-              <a class="btn btn-wa" href="https://wa.me/256700000000" target="_blank" rel="noopener">WhatsApp</a>
-            </div>
-          </div>
-        </div>
-
-        <div class="listing-card" data-category="fast">
-          <div class="listing-img">
-            <img src="https://images.pexels.com/photos/2456435/pexels-photo-2456435.jpeg" alt="Indomie with egg and veggies">
-          </div>
-          <div class="listing-info">
-            <div class="listing-title">Indomie + Egg + Veggies (single / double)</div>
-            <div class="listing-price">UGX 6,000 – 12,000</div>
-            <div class="listing-vendor">Vendor: Indomie Mama – Makerere</div>
-            <div class="buttons">
-              <a class="btn btn-call" href="tel:+256700000000">Call</a>
-              <a class="btn btn-wa" href="https://wa.me/256700000000" target="_blank" rel="noopener">WhatsApp</a>
-            </div>
-          </div>
-        </div>
-
-        <div class="listing-card" data-category="snacks">
-          <div class="listing-img">
-            <img src="https://images.pexels.com/photos/1583884/pexels-photo-1583884.jpeg" alt="Fried chips">
-          </div>
-          <div class="listing-info">
-            <div class="listing-title">Chips (Biggy / Noodles mix packs)</div>
-            <div class="listing-price">UGX 20,000 – 30,000 (bulk)</div>
-            <div class="listing-vendor">Vendor: Snacks Corner – Kikumi / Bwaise</div>
-            <div class="buttons">
-              <a class="btn btn-call" href="tel:+256700000000">Call</a>
-              <a class="btn btn-wa" href="https://wa.me/256700000000" target="_blank" rel="noopener">WhatsApp</a>
-            </div>
-          </div>
-        </div>
-
-        <div class="listing-card" data-category="drinks">
-          <div class="listing-img">
-            <img src="https://images.pexels.com/photos/1384039/pexels-photo-1384039.jpeg" alt="Soda bottles mix">
-          </div>
-          <div class="listing-info">
-            <div class="listing-title">Soda Mix (Coke, Fanta, Sprite 500ml)</div>
-            <div class="listing-price">UGX 15,000 – 25,000 (6-pack)</div>
-            <div class="listing-vendor">Vendor: Cold Drinks – Campus vicinity</div>
-            <div class="buttons">
-              <a class="btn btn-call" href="tel:+256700000000">Call</a>
-              <a class="btn btn-wa" href="https://wa.me/256700000000" target="_blank" rel="noopener">WhatsApp</a>
-            </div>
-          </div>
-        </div>
-
-        <div class="listing-card" data-category="local">
-          <div class="listing-img">
-            <img src="https://images.pexels.com/photos/18411466/pexels-photo-18411466.jpeg" alt="Katogo meal">
-          </div>
-          <div class="listing-info">
-            <div class="listing-title">Katogo (beans + matooke / posho)</div>
-            <div class="listing-price">UGX 8,000 – 12,000</div>
-            <div class="listing-vendor">Vendor: Katogo Spot – Makerere / Kyambogo</div>
-            <div class="buttons">
-              <a class="btn btn-call" href="tel:+256700000000">Call</a>
-              <a class="btn btn-wa" href="https://wa.me/256700000000" target="_blank" rel="noopener">WhatsApp</a>
-            </div>
-          </div>
-        </div>
-
-      </div>
+  <main class="container" style="padding: 60px 0;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <h2>Browse Menu</h2>
+        <p class="text-muted" style="font-weight: 600;">Found <?php echo $count; ?> results</p>
     </div>
-  </section>
 
-  <section class="vendor-section" id="vendor">
-    <div class="container">
-      <h2>Are you a campus food seller?</h2>
-      <p>Upload your own food items & prices — add photos too. We'll review quickly and list approved ones for students to see.</p>
+    <div class="grid">
+      <?php if ($result->num_rows > 0): ?>
+        <?php while ($row = $result->fetch_assoc()): ?>
+          <div class="card item-card animate-fade" id="item-<?php echo (int)$row['id']; ?>">
+            <div style="position: relative;">
+                <img src="<?php echo htmlspecialchars($row['image']); ?>" alt="<?php echo htmlspecialchars($row['food_name']); ?>" class="item-image">
+                <span class="badge status-badge-float <?php echo $row['status'] == 'Available' ? 'badge-approved' : 'badge-rejected'; ?>">
+                    <?php echo htmlspecialchars($row['status']); ?>
+                </span>
+            </div>
+            <div class="item-content">
+                <span class="item-vendor"><?php echo htmlspecialchars($row['vendor_name']); ?></span>
+                <h3 style="margin-bottom: 10px; font-size: 1.4rem;"><?php echo htmlspecialchars($row['food_name']); ?></h3>
+                <p class="text-muted" style="font-size: 0.9rem; margin-bottom: 15px; flex-grow: 1;"><?php echo htmlspecialchars($row['description']); ?></p>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span class="badge" style="background: #f1f5f9; color: #475569; font-size: 0.7rem;"><?php echo htmlspecialchars($row['category']); ?></span>
+                    <span class="item-price"><?php echo htmlspecialchars($row['price']); ?></span>
+                </div>
 
-      <?php if (!empty($success)): ?>
-        <div class="alert alert-success"><?php echo htmlspecialchars($success); ?></div>
+                <div class="item-actions<?php echo !isset($_SESSION['user_id']) ? ' login-required' : ''; ?>">
+                    <?php if ($row['status'] !== 'Available'): ?>
+                        <span class="btn btn-secondary" style="grid-column:1/-1; cursor:not-allowed; opacity:.7;">Currently unavailable</span>
+                    <?php elseif (isset($_SESSION['user_id'])): ?>
+                        <?php
+                            $whatsappMsg = urlencode("Hello " . $row['vendor_name'] . ", I'm interested in ordering " . $row['food_name'] . " (" . $row['price'] . ") from CampusExpress.");
+                            $waLink = "https://wa.me/" . preg_replace('/[^0-9]/', '', $row['phone']) . "?text=" . $whatsappMsg;
+                        ?>
+                        <a href="<?php echo e($waLink); ?>" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="background:#25D366; box-shadow:none;">Order on WhatsApp</a>
+                        <a href="tel:<?php echo e($row['phone']); ?>" class="btn btn-secondary">Call vendor</a>
+                    <?php else: ?>
+                        <a href="user_login.php?return=<?php echo rawurlencode('index.php#item-' . (int)$row['id']); ?>" class="btn btn-primary" style="grid-column:1/-1;">Sign in to order</a>
+                    <?php endif; ?>
+                </div>
+            </div>
+          </div>
+        <?php endwhile; ?>
+      <?php else: ?>
+        <div style="grid-column: 1/-1; text-align: center; padding: 100px 0;">
+            <div style="font-size: 4rem; margin-bottom: 20px;">🔎</div>
+            <h3>No items found</h3>
+            <p class="text-muted">Try adjusting your filters or search terms.</p>
+            <a href="index.php" class="btn btn-secondary" style="margin-top: 20px;">Reset Filters</a>
+        </div>
       <?php endif; ?>
-      <?php if (!empty($error)): ?>
-        <div class="alert alert-error"><?php echo htmlspecialchars($error); ?></div>
-      <?php endif; ?>
-
-      <form method="POST" enctype="multipart/form-data">
-        <div class="form-grid">
-          <div>
-            <label for="vendor-name">Your Name / Shop Name *</label>
-            <input type="text" id="vendor-name" name="vendor_name" required>
-          </div>
-          <div>
-            <label for="phone">WhatsApp / Phone Number *</label>
-            <input type="tel" id="phone" name="phone" required placeholder="+256 7xx xxx xxx">
-          </div>
-        </div>
-
-        <div style="margin-top:1rem;">
-          <label for="location">Campus Area / Location *</label>
-          <input type="text" id="location" name="location" required placeholder="e.g. Wandegeya, Kikoni, Makerere North">
-        </div>
-
-        <div style="margin-top:1rem;">
-          <label for="menu">Food Items & Prices *</label>
-          <textarea id="menu" name="menu" required
-            placeholder="Example:
-• Rolex (eggs + veggies) - UGX 5,000 - 8,000
-• Indomie + egg - UGX 6,000
-• Chips small pack - UGX 2,000
-• Soda 500ml - UGX 3,000"></textarea>
-        </div>
-
-        <div style="margin-top:1rem;">
-          <label for="photos">Upload Photos of Your Food / Menu (optional – up to 3–4 best ones)</label>
-          <input type="file" id="photos" name="attachment[]" accept="image/*" multiple>
-          <small>jpg / png — max ~5MB each recommended</small>
-        </div>
-
-        <button class="submit-btn" type="submit">Upload My Food Items</button>
-      </form>
-
-      <p style="margin-top:1.5rem;font-size:.95rem;opacity:.9;">
-        Submissions go straight to us — we'll review & add good ones within 1–2 days. Thanks!
-      </p>
     </div>
-  </section>
+  </main>
 
-  <footer>
-    <div class="container">
-      &copy; 2026 Campus Express Food – Direct from campus sellers to students in Kampala
+  <footer class="site-footer">
+    <div class="container footer-main">
+      <div class="footer-brand">
+        <a href="index.php" class="logo footer-logo">
+          <img src="logo-128.png?v=2" alt="" class="site-logo-image" width="42" height="42">
+          <span>CampusExpress</span>
+        </a>
+        <p>Your trusted campus marketplace for meals, essentials, and local student businesses.</p>
+      </div>
+      <nav class="footer-links" aria-label="Marketplace links">
+        <h3>Marketplace</h3>
+        <a href="#marketplace">Browse items</a>
+        <a href="user_login.php">Student sign in</a>
+      </nav>
+      <nav class="footer-links" aria-label="Vendor links">
+        <h3>For Vendors</h3>
+        <a href="login.php">Vendor sign in</a>
+        <a href="register.php">Register your business</a>
+      </nav>
+    </div>
+    <div class="container footer-bottom">
+      <p>&copy; <?php echo date('Y'); ?> CampusExpress Marketplace. All rights reserved.</p>
+      <a href="admin_login.php" class="admin-access">Admin access</a>
     </div>
   </footer>
-
-  <button id="backToTop" class="back-to-top" aria-label="Back to top">↑</button>
-  <div id="toast" class="toast">Copied!</div>
-
-  <script>
-    window.addEventListener("scroll", () => {
-      const header = document.querySelector("header");
-      if (!header) return;
-      if (window.scrollY > 30) header.classList.add("shrink");
-      else header.classList.remove("shrink");
-    });
-
-    const backToTop = document.getElementById("backToTop");
-    window.addEventListener("scroll", () => {
-      if (!backToTop) return;
-      backToTop.classList.toggle("show", window.scrollY > 400);
-    });
-    backToTop?.addEventListener("click", () => window.scrollTo({top:0, behavior:"smooth"}));
-
-    const cards = Array.from(document.querySelectorAll(".listing-card"));
-    cards.forEach(el => el.classList.add("reveal"));
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach(e => {
-        if (e.isIntersecting) e.target.classList.add("visible");
-      });
-    }, { threshold: 0.12 });
-    cards.forEach(el => io.observe(el));
-
-    const searchInput = document.getElementById("searchInput");
-    const headerSearch = document.getElementById("headerSearch");
-    const filterBar = document.getElementById("filterBar");
-
-    function applyFilters(){
-      const q = ((searchInput?.value || headerSearch?.value || "")).trim().toLowerCase();
-      const activeBtn = filterBar?.querySelector(".filter-btn.active");
-      const cat = activeBtn?.dataset.filter || "all";
-
-      cards.forEach(card => {
-        const text = card.innerText.toLowerCase();
-        const cardCat = card.dataset.category || "all";
-        const matchSearch = !q || text.includes(q);
-        const matchCat = (cat === "all") || (cardCat === cat);
-        card.style.display = (matchSearch && matchCat) ? "" : "none";
-      });
-    }
-
-    searchInput?.addEventListener("input", applyFilters);
-    headerSearch?.addEventListener("input", () => {
-      if (searchInput) searchInput.value = headerSearch.value;
-      applyFilters();
-    });
-
-    filterBar?.addEventListener("click", (e) => {
-      const btn = e.target.closest(".filter-btn");
-      if (!btn) return;
-      filterBar.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      applyFilters();
-    });
-
-    applyFilters();
-  </script>
 
 </body>
 </html>

@@ -1,53 +1,82 @@
--- Campus Express Food Database Schema
+-- Database: campusexpress
 
-CREATE DATABASE IF NOT EXISTS campus_express;
-USE campus_express;
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
+SET time_zone = "+00:00";
 
--- Table for email login verification codes
-CREATE TABLE IF NOT EXISTS email_logins (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    email VARCHAR(255) NOT NULL,
-    code VARCHAR(6) NOT NULL,
-    expires_at DATETIME NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_email (email),
-    INDEX idx_expires (expires_at)
-);
+-- 1. Admins Table
+CREATE TABLE IF NOT EXISTS `admins` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `username` varchar(50) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `email` (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Table for registered users
-CREATE TABLE IF NOT EXISTS users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    email VARCHAR(255) UNIQUE NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    last_login TIMESTAMP NULL
-);
+-- Create the first administrator with scripts/create_admin.php after configuring the environment.
 
--- Table for vendor submissions
-CREATE TABLE IF NOT EXISTS vendors (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    vendor_name VARCHAR(255) NOT NULL,
-    phone VARCHAR(20) NOT NULL,
-    location VARCHAR(255) NOT NULL,
-    menu TEXT NOT NULL,
-    photos JSON NULL,
-    status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    reviewed_at TIMESTAMP NULL
-);
+-- 2. Vendors Table
+CREATE TABLE IF NOT EXISTS `vendors` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `vendor_name` varchar(100) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `phone` varchar(20) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `business_address` text,
+  `business_type` varchar(50),
+  `status` enum('Pending', 'Approved', 'Rejected') DEFAULT 'Pending',
+  `registration_date` timestamp DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `email` (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Table for active listings (approved vendors)
-CREATE TABLE IF NOT EXISTS listings (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    vendor_id INT NOT NULL,
-    title VARCHAR(255) NOT NULL,
-    description TEXT,
-    price_range VARCHAR(100) NOT NULL,
-    category ENUM('fast', 'local', 'drinks', 'snacks') NOT NULL,
-    image_url VARCHAR(500),
-    is_active BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (vendor_id) REFERENCES vendors(id)
-);
+-- 3. Users Table (Students/Customers)
+CREATE TABLE IF NOT EXISTS `users` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `full_name` varchar(100) DEFAULT NULL,
+  `email` varchar(100) NOT NULL,
+  `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `email` (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Clean up expired codes (run periodically)
--- DELETE FROM email_logins WHERE expires_at < NOW();
+-- 4. OTPs Table
+CREATE TABLE IF NOT EXISTS `otps` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `email` varchar(100) NOT NULL,
+  `otp_code` char(64) NOT NULL,
+  `expires_at` datetime NOT NULL,
+  `is_used` tinyint(1) DEFAULT 0,
+  `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 5. Menu Items Table
+CREATE TABLE IF NOT EXISTS `menu_items` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `vendor_id` int(11) NOT NULL,
+  `food_name` varchar(100) NOT NULL,
+  `description` text,
+  `price` decimal(10,2) unsigned NOT NULL,
+  `category` varchar(50) NOT NULL,
+  `image` varchar(255) NOT NULL,
+  `status` enum('Available', 'Sold Out') DEFAULT 'Available',
+  `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`vendor_id`) REFERENCES `vendors`(`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+-- 6. Authentication rate-limit events
+CREATE TABLE IF NOT EXISTS `auth_attempts` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `identifier_hash` char(64) NOT NULL,
+  `action_name` varchar(50) NOT NULL,
+  `attempted_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `auth_attempt_lookup` (`identifier_hash`, `action_name`, `attempted_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+COMMIT;
+
